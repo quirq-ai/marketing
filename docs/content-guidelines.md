@@ -47,10 +47,19 @@ specific and honest about what is and is not known.
 | Argue and frame, citing the note | Introduce a figure the note does not carry |
 | Admit a limit in one sentence and move on | Apologise, or hide the limit |
 | Second person for instructions ("run `quirq demo`") | "Simply", "just", "easily" and other trivializers |
+| Give every claim its status: derived, illustrative or open | Let a reconstruction read as a sourced fact |
+| Quote sources verbatim and cite exactly (file, constant, equation, section) | Paraphrase a source and cite it loosely |
+
+Research posts are stricter still: no marketing language at all. Numbers
+carry their derivation, and the closing footnote says what is sourced, what is
+ours and what was not verified (the writings repo's convention).
 
 Mechanics:
 
-- American English, sentence case for headings and titles, Oxford comma.
+- American English, Oxford comma.
+- Titles of posts and cards in title case, as shipped ("Where the JSON Lives",
+  "AI Token Spend Needs Its Horsepower Moment"). Section headings, captions
+  and UI labels in sentence case ("The part that did not survive").
 - Spell numbers as digits with units (`88 to 96 percent` in prose, `88–96%` in
   figures and captions).
 - Headlines: one idea, compact enough to read at display size. On pages built
@@ -80,8 +89,8 @@ Mechanics:
 
 - Lowercase kebab-case, ASCII only, at most 64 characters.
 - The file or folder name and the `slug` field match exactly.
-- Slugs describe the content, not its position or date: `the-orientation-tax`,
-  not `post-3` or `2026-08-final-v2`.
+- Slugs describe the content, not its position or date: `where-the-json-lives`,
+  not `post-3` or `2026-10-final-v2`. No dates in slugs.
 - Variants are suffixes, in this order: `<slug>[-<role>][-<theme>][@<scale>].<ext>`
   - role: `card`, `og`, `hero`, `fig-<n>`, `thumb`
   - theme: `light` or `dark`, only when the asset differs by theme
@@ -91,6 +100,21 @@ Mechanics:
 
 ## 4. Images and figures
 
+### Two design languages
+
+quirq ships two visual systems. Pick one per piece and never mix them.
+
+| | Product voice | Research paper |
+|---|---|---|
+| Where | quirq.ai site, landing page, whitepaper deck, social | Research posts and essays (writings) |
+| Ground | Dark: void `#000000`, ink `#f4f3f0` | Light: paper `#ffffff`, ink `#252525` |
+| Type | Inter, IBM Plex Mono | System serif, sans and mono stacks; no webfonts |
+| Accent | Spectrum gradient | `--orange #d98226` is the only chrome accent |
+| Colour in figures | Spectrum for delivered outcome, monochrome for consumption | Green, blue, purple, red only inside figures, encoding meaning |
+
+Copy design tokens verbatim from the source (`app/globals.css` on the site,
+`shared/paper.css` in writings). Do not invent values.
+
 ### Sizes and formats
 
 | Use | Size (px) | Ratio | Format | Weight budget |
@@ -99,19 +123,24 @@ Mechanics:
 | Social / OG card | 1200 × 630 | 1.91:1 | JPG | ≤ 200 KB |
 | Partner / logo tile | 680 × 357 | 1.91:1 | JPG or SVG | ≤ 80 KB |
 | Hero / banner | 2000 wide, any height | as designed | JPG or PNG | ≤ 400 KB _(proposed)_ |
-| Figure, chart, diagram | vector | as designed | SVG (or HTML/CSS for data) | ≤ 100 KB |
+| Post thumbnail (index) | 320 × 160 | 2:1 | SVG | ≤ 20 KB |
+| Figure, chart, diagram | prose 704, figure 1000, wide 1120 | as designed | inline HTML/CSS/SVG | ≤ 100 KB |
 | Logo, mark | vector | — | SVG | — |
 
 Card and partner sizes match the art currently shipped under
-`public/assets/writing/` on the site. Raster masters (full-resolution source
+`public/assets/writing/` on the site. Figure widths are the paper system's
+`--text`, `--middle` and `--page` columns. A post thumbnail is a real figure
+from the post reduced to silhouette: `#f7f7f5` ground, a 4 px orange title
+strip, a mono uppercase `CATEGORY / KIND` eyebrow, and the source figure's
+colours. Raster masters (full-resolution source
 files) live in the library; exported sizes are generated from them, never
 upscaled.
 
 ### Light and dark rendering
 
-The site is dark (void `#000000`, ink `#f4f3f0`), but library assets get reused
-in READMEs, docs, decks and social posts where the background may be white.
-So:
+Each piece renders in its own system's ground (section 4, "Two design
+languages"). But library assets get reused across both, and in READMEs, docs,
+decks and social posts where the background may be either. So:
 
 - Every figure and diagram renders correctly on **both** `#000000` and
   `#ffffff`. Check both before shipping.
@@ -128,22 +157,43 @@ So:
 
 ### Colour
 
-- Use the brand tokens; do not introduce new hues. Spectrum: red `#ff453a`,
+- Use the system's tokens; do not introduce new hues. Product spectrum: red `#ff453a`,
   orange `#ff9f0a`, yellow `#ffd60a`, green `#30d158`, cyan `#2fd2ff`, blue
   `#0a84ff`, purple `#bf5af2`. Neutrals: ink `#f4f3f0`, dim `#a3a39e`, faint
-  `#85857f`.
+  `#85857f`. Paper palette: orange `#d98226`, green `#367f59`, blue `#3c6f97`,
+  purple `#765b98`, red `#ad4b43`, each with a soft tint.
 - **Colour is value.** A series measuring delivered outcome takes the
   spectrum. Anything counting consumption (tokens, calls, files, minutes) stays
   monochrome. When the unit does not say, use monochrome.
 
 ### Figures
 
-Hand-drawn figures (diagrams and charts drawn as SVG or HTML rather than
-exported from a plotting tool) follow these rules:
+Figures are hand-authored HTML, CSS and SVG. No screenshots, no chart
+libraries, no generated imagery. In a post they use the writings pattern:
 
-- **Checked at two widths: 1400 px and 820 px.** 1400 is the wide desktop
-  reading width; 820 is the site's narrow breakpoint. At both, every label is
-  legible, nothing overlaps or clips, and nothing scrolls horizontally.
+```html
+<figure class="figure [wide]" id="fig-…">
+  <div class="figure-head">
+    <span class="figure-label">Figure N</span>
+    <p class="figure-title">What it shows, in one line</p>
+  </div>
+  <div class="figure-body"> …diagram or table… </div>
+  <p class="figure-caption">The takeaway, not a label.</p>
+</figure>
+```
+
+Rules:
+
+- **Checked at two widths: 1400 px and 820 px.** 1400 is above the 1180 px
+  breakpoint where the contents rail appears beside `main`; 820 is below it
+  and is also the site's narrow breakpoint. At both, every label is legible,
+  nothing overlaps or clips, the rail clears the text, and nothing scrolls
+  horizontally. Wide figures also clamp correctly in the 1180–1319 px band.
+- Diagram edges keep one meaning across posts: thin blue is data, thick black
+  is control or sequence, dashed purple is state or effect.
+- Each figure carries its epistemic status (a status pill) when it mixes
+  sourced material with our own reconstruction.
+- Interactive figures use native controls only, with ARIA labels.
 - Labels are real text, not outlined paths, so they stay selectable,
   translatable and readable by screen readers.
 - Percentages scale to 100, not to the tallest bar present.
@@ -177,9 +227,10 @@ marketing/
 │   └── content-guidelines.md   this file
 ├── posts/
 │   ├── posts.json               index of every post (see below)
+│   ├── feed.xml                 RSS feed, one item per post
 │   └── <slug>/
 │       ├── index.html           self-contained page
-│       └── figures/             figures used only by this post
+│       └── assets/              thumb.svg and anything used only by this post
 ├── media/
 │   ├── media.json               index of every reusable asset
 │   ├── images/<slug>/           card, og, hero exports + master
@@ -192,38 +243,56 @@ marketing/
 
 ### Self-contained pages
 
-A post's `index.html` opens and renders correctly straight from disk: styles
-inline, figures inline as SVG or referenced by relative path inside the post
-folder, no build step, no network fetch required to read it. Fonts may load
-from a CDN but the page must stay readable if they do not.
+A post is one file. `<slug>/index.html` carries an inline `<style>` block and
+inline `<script>` blocks, and renders correctly when opened directly with
+`file://`: no webfonts, no external JS, no chart libraries, no build step. A
+post never depends on the index page, and the index never rewrites a post (no
+iframes or injection; it links out). Research posts follow the writings page
+skeleton and reading chrome (progress bar, in-flow contents, contents rail at
+1180 px and up, floating contents below it), copied from its most recent post.
 
 ### `posts/posts.json`
 
-One entry per post, newest first. This file is the single source for card
-metadata; pages and listings read from it.
+Same shape as the writings repo's manifest, so the two can merge or share a
+viewer: a `site` block and a `posts` array, one entry per post. This file is
+the single source for card metadata; pages and listings read from it.
 
 ```json
-[
-  {
-    "slug": "the-orientation-tax",
-    "title": "The orientation tax",
-    "desc": "One or two sentences that are not a copy of the title.",
-    "date": "2026-08-01",
-    "read": "4 min",
-    "category": "thoughts",
-    "source": { "title": "How the Environment Affects Agent Performance and Token Cost", "href": "…" },
-    "card": "media/images/the-orientation-tax/the-orientation-tax-card.jpg",
-    "og": "media/images/the-orientation-tax/the-orientation-tax-og.jpg",
-    "status": "published"
-  }
-]
+{
+  "site": {
+    "title": "Writings",
+    "author": "Suraj Sharma",
+    "affiliation": "XO Labs",
+    "description": "Long-form research on agentic systems and the measurement of work.",
+    "canonical": "https://quirq.ai"
+  },
+  "posts": [
+    {
+      "slug": "where-the-json-lives",
+      "title": "Where the JSON Lives",
+      "subtitle": "The dek: one or two sentences that are not a copy of the title.",
+      "authors": ["Suraj Sharma"],
+      "published": "2026-10-01",
+      "status": "field-guide",
+      "kind": "essay",
+      "topics": ["databases", "json"],
+      "readingMinutes": 58,
+      "featured": false,
+      "thumbnail": "where-the-json-lives/assets/thumb.svg",
+      "attachments": [{ "label": "Benchmark script (_compute.py)", "href": "where-the-json-lives/_compute.py" }]
+    }
+  ]
+}
 ```
 
-- `slug` matches the folder name. `date` is ISO `YYYY-MM-DD`.
-- `category` is one of `announcements`, `thoughts`, `partners`, `guides`
-  _(proposed; matches the site's Writings tabs plus guides)_.
-- `source` is required when the post reports any finding.
-- `status` is `draft`, `published` or `retired`. Retired posts keep their entry.
+- `slug` matches the folder name. `published` is ISO `YYYY-MM-DD`.
+- `kind` is one of `essay`, `note`, `spec`, `whitepaper`. `topics` are
+  lowercase kebab-case.
+- `readingMinutes` is measured, not guessed: strip tags, SVG and styles, then
+  words ÷ 225.
+- `thumbnail` exists on disk.
+- Every post also gets a `feed.xml` item: link and guid
+  `https://quirq.ai/<slug>/`, RFC 822 `pubDate`, description is the one-line dek.
 
 ### `media/media.json`
 
@@ -263,15 +332,18 @@ into the PR description and tick it.
 - [ ] Results that a later study overturned are flagged as such.
 - [ ] "quirq" is lowercase except at a sentence start or in "Quirq Efficiency Ratio"; plural is "quirqs".
 - [ ] Headline is one idea; lede does not repeat the title; captions only qualify.
-- [ ] Sentence case, American English, Oxford comma; no "simply"/"just"/"easily".
+- [ ] Title case for titles, sentence case for headings; American English, Oxford comma; no "simply"/"just"/"easily".
+- [ ] Claims carry their status (derived, illustrative, open); research posts end with a provenance footnote.
 - [ ] Every link resolves; external links that open a new tab say so.
 
 **Files and index**
 
 - [ ] File and folder names are lowercase kebab-case, ≤ 64 characters, and match `slug`.
-- [ ] The piece has its entry in `posts/posts.json` or `media/media.json`, with all required fields.
+- [ ] The piece has its entry in `posts/posts.json` or `media/media.json`, with all required fields; posts also have a `feed.xml` item.
+- [ ] `readingMinutes` is measured (words ÷ 225), and the thumbnail path exists.
 - [ ] Metadata (title, date, reading time) exists only in the index, not duplicated in the page.
-- [ ] Post `index.html` opens from disk with no build step and no broken references.
+- [ ] Post `index.html` opens from `file://` with no webfonts, external JS or broken references.
+- [ ] Research posts pass the writings validator (balanced tags; rail and contents links match the `h2` ids; one progress bar; `posts.json`, `feed.xml` and `thumb.svg` parse).
 - [ ] Every asset has a licence; third-party assets carry attribution.
 
 **Images and figures**
@@ -279,7 +351,8 @@ into the PR description and tick it.
 - [ ] Exports match the size and weight budget table; nothing upscaled.
 - [ ] Figures checked at 1400 px and 820 px: no overlap, clipping or horizontal scroll.
 - [ ] Figures checked on `#000000` and `#ffffff` backgrounds (or ship `-light`/`-dark` variants).
-- [ ] Only brand colours; spectrum only for delivered-outcome values.
+- [ ] One design language per piece; only that system's colours, used to encode meaning.
+- [ ] Figures are hand-authored HTML/CSS/SVG: no screenshots, chart libraries or generated imagery.
 - [ ] Percentages scale to 100; zeros draw nothing; every plotted number is in the source.
 - [ ] Figure labels are real text, and a text summary carries the same values.
 - [ ] Every image has alt text, or `alt=""` recorded as decorative in the index.
@@ -300,7 +373,9 @@ into the PR description and tick it.
   note does not", card art sizes under `public/assets/writing/`.
 - `quirq-ai/quirq_ai` `app/globals.css`: brand colour tokens.
 - `quirq-ai/quirq_ai` `components/stage/choreo-tree.ts`: the 820 px breakpoint.
-- The writings workflow (self-contained pages, a `posts.json` index,
-  hand-drawn figures checked at 1400 px and 820 px), as described in the brief
-  for this doc. That repository was not reachable from here, so its exact
-  schema was not copied; `posts.json` above is a proposal to reconcile with it.
+- `sharmasuraj0123/writings` `AGENTS.md` and `README.md`: self-contained
+  posts, the `posts.json` manifest and its fields, `feed.xml`, the two design
+  languages, the paper tokens in `shared/paper.css`, the figure pattern and
+  edge conventions, the 320 × 160 thumbnail, measured reading time, the 1180 px
+  rail breakpoint and the page validator.
+- Figure checks at 1400 px and 820 px: from suraj's recent writings sessions.
